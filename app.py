@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import os
+import os, json
 from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ def aggregate():
 
     processed = created = updated = 0
     created_paths = []
-    updated_paths = []
+    updated_files = []
 
     for file_path in source_files:
         file_name = file_path.split("/")[-1]
@@ -42,10 +42,21 @@ def aggregate():
 
         try:
             existing_data = target_blob.download_blob().readall()
-            combined = existing_data + b"\\n" + new_data
-            target_blob.upload_blob(combined, overwrite=True)
+            target_array = json.loads(existing_data.decode("utf-8"))
+            source_array = json.loads(new_data.decode("utf-8"))
+
+            before_count = len(target_array)
+            after_count = before_count + len(source_array)
+
+            combined_array = target_array + source_array
+            target_blob.upload_blob(json.dumps(combined_array), overwrite=True)
+
             updated += 1
-            updated_paths.append(target_blob_path)
+            updated_files.append({
+                "path": target_blob_path,
+                "before": before_count,
+                "after": after_count
+            })
         except:
             target_blob.upload_blob(new_data)
             created += 1
@@ -56,7 +67,7 @@ def aggregate():
         "files_created": created,
         "files_updated": updated,
         "created_paths": created_paths,
-        "updated_paths": updated_paths
+        "updated_files": updated_files
     })
 
 if __name__ == "__main__":
