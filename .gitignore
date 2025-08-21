@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.env.*
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Pipenv/venv
+.venv/
+venv/
+ENV/
+env/
+
+# PyInstaller
+*.spec
+
+# Docker
+*.log
+*.pid
+*.tar
+*.gz
+*.bak
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Azure
+*.PublishSettings
+
+# GitHub actions cache
+.github/workflows/*.log
