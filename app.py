@@ -45,17 +45,26 @@ def aggregate():
             target_array = json.loads(existing_data.decode("utf-8"))
             source_array = json.loads(new_data.decode("utf-8"))
 
-            before_count = len(target_array)
-            after_count = before_count + len(source_array)
+            # Convert items to sets of unique strings
+            target_set = set(json.dumps(item, sort_keys=True) for item in target_array)
+            source_set = set(json.dumps(item, sort_keys=True) for item in source_array)
 
-            combined_array = target_array + source_array
+            before_count = len(target_set)
+            combined_set = target_set | source_set
+            after_count = len(combined_set)
+            added_count = after_count - before_count
+
+            # Convert back to list of dicts
+            combined_array = [json.loads(item) for item in combined_set]
+
             target_blob.upload_blob(json.dumps(combined_array), overwrite=True)
 
             updated += 1
             updated_files.append({
                 "path": target_blob_path,
                 "before": before_count,
-                "after": after_count
+                "after": after_count,
+                "added": added_count
             })
         except:
             target_blob.upload_blob(new_data)
